@@ -9,7 +9,9 @@ router.get("/video/details/:id", async (req, res) => {
     const videoId = req.params.id;
 
     const video = await getVideoDetails(videoId);
-    const notes = await noteModel.find({ videoId });
+    // Optional test-mode: bypass notes DB if TEST_MOCK_NOTES is true
+    const shouldMockNotes = process.env.TEST_MOCK_NOTES === 'true';
+    const notes = shouldMockNotes ? [] : await noteModel.find({ videoId });
 
     res.json({
       video,

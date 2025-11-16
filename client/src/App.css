@@ -1,42 +1,71 @@
-#root {
-  max-width: 1280px;
+/* Basic layout for the lean UI */
+
+.dark {
+  background-color: rgb(31 41 55);
+}
+/* .app {
+  font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  color: #333;
+  max-width: 960px;
   margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
+  padding: 1rem 1.25rem 2rem;
 }
 
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
+.app-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5rem 0 1rem;
+  border-bottom: 1px solid #eee;
+  margin-bottom: 1rem;
 }
 
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.section {
+  border: 1px solid #eee;
+  padding: 1rem;
+  border-radius: 6px;
+  margin: 0.75rem 0;
+  background: #fff;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
-  }
+.section h2 {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.1rem;
 }
 
-.card {
-  padding: 2em;
+.field-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 6px 0;
 }
+.field-row label {
+  width: 100px;
+  text-align: right;
+  font-size: 14px;
+  color: #555;
+}
+.field-row input,
+.field-row textarea {
+  padding: 6px 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  width: 100%;
+  box-sizing: border-box;
+}
+.field-row textarea {
+  resize: vertical;
+}
+.note, .small { font-size: 12px; color: #666; }
+.reply { display: flex; gap: 6px; align-items: center; }
 
-.read-the-docs {
-  color: #888;
+button {
+  padding: 6px 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background: #f5f5f5;
+  cursor: pointer;
 }
+button:hover {
+  background: #eee;
+} */
