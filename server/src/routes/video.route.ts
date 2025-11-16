@@ -28,6 +28,20 @@ router.patch("/video/update/:id", async (req, res) => {
 
   const response = await updateVideoDetails(req.params.id, title, description);
 
+  // Log event after update
+  try {
+    const { default: EventModel } = await import("../models/event.model");
+    if (title) {
+      const eventLog = new EventModel({
+        videoId: req.params.id,
+        event: `Updated video title to "${title}, and description to "${description}"`,
+      });
+      await eventLog.save();
+    }
+  } catch (e) {
+    console.error("Failed to log video update event", e);
+  }
+
   res.json(response);
 });
 

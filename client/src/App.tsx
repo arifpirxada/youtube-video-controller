@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import './App.css'
 
 type Comment = {
@@ -37,8 +37,7 @@ const apiUrl = import.meta.env.VITE_API_URL;
 
 function App() {
   const [videoId, setVideoId] = useState<string>('TLewwYmQ_tA')
-  // Removed loading/error telemetry for a lean UI
-
+  // Unified loading controls
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
 
@@ -53,6 +52,17 @@ function App() {
   const [events, setEvents] = useState<EventLog[]>([])
 
   const [darkMode, setDarkMode] = useState<boolean>(false)
+  const [loading, setLoading] = useState<boolean>(false)
+  const loadingCounter = useRef(0)
+
+  function startLoading() {
+    loadingCounter.current += 1
+    if (loadingCounter.current === 1) setLoading(true)
+  }
+  function stopLoading() {
+    loadingCounter.current = Math.max(0, loadingCounter.current - 1)
+    if (loadingCounter.current === 0) setLoading(false)
+  }
 
   useEffect(() => {
     const saved = localStorage.getItem('ytvc-theme')
@@ -82,19 +92,24 @@ function App() {
   }, [])
 
   async function api(path: string, method: string = 'GET', body?: any) {
-    const res = await fetch(apiUrl + path, {
-      method,
-      headers: { 'Content-Type': 'application/json' },
-      body: body ? JSON.stringify(body) : undefined
-    })
-    if (!res.ok) {
-      const text = await res.text()
-      throw new Error(text || 'Request failed')
-    }
+    startLoading()
     try {
-      return await res.json()
-    } catch {
-      return null
+      const res = await fetch(apiUrl + path, {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: body ? JSON.stringify(body) : undefined
+      })
+      if (!res.ok) {
+        const text = await res.text()
+        throw new Error(text || 'Request failed')
+      }
+      try {
+        return await res.json()
+      } catch {
+        return null
+      }
+    } finally {
+      stopLoading()
     }
   }
 
@@ -111,7 +126,7 @@ function App() {
   }
 
   useEffect(() => {
-      loadVideoDetails()
+    loadVideoDetails()
   }, [])
 
   async function saveVideoDetails() {
@@ -228,18 +243,18 @@ function App() {
         </div>
       </header>
 
-      <main className="max-w-6xl mx-auto p-4 grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <section className="bg-white dark:bg-gray-800 rounded-lg shadow p-4 md:p-6 hover:shadow-lg transition">
+      <main className="max-w-6xl mx-auto my-4 lg:my-16 p-4 grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <section className="bg-white dark:bg-gray-800 rounded-lg p-4 md:p-6 transition mb-6">
           <h2 className="text-lg font-semibold mb-2 dark:text-white">Video Preview</h2>
-          <div className="w-full relative" style={{ paddingBottom: '56.25%', height: 0 }}>
-            <iframe
-              title="video-preview"
-              src={videoId ? `https://www.youtube.com/embed/${videoId}` : ''}
-              style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', border: 0, borderRadius: '12px' }}
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-              allowFullScreen
-            />
-          </div>
+            <div className="video-embed">
+              <iframe
+                title="video-preview"
+                src={videoId ? `https://www.youtube.com/embed/${videoId}` : ''}
+                style={{ width: '100%', height: '100%', border: 0, borderRadius: '12px' }}
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                allowFullScreen
+              />
+            </div>
           <div className="mt-3">
             <div className="flex items-center gap-2 mb-2">
               <label className="w-20 text-right text-sm text-gray-600 dark:text-gray-300">Title</label>
@@ -300,21 +315,27 @@ function App() {
               ))}
             </ul>
           </section>
+        </section>
 
-          <section className="bg-white dark:bg-gray-800 rounded-lg shadow p-4" aria-label="events">
-            <h2 className="text-lg font-semibold mb-2 dark:text-white">Events</h2>
-            <button className="mb-2 bg-gray-700 text-white px-3 py-1 rounded hover:bg-gray-600" onClick={loadEvents}>Load</button>
-            <ul>
-              {events.map((e)=> (
-                <li key={e._id} className="mb-1 flex items-center gap-2">
-                  <span>{e.event}</span>
-                  {e.createdAt && <span className="text-xs text-gray-500">{e.createdAt}</span>}
-                </li>
-              ))}
-            </ul>
-          </section>
+        <section aria-label="events" className="lg:col-span-2 bg-white dark:bg-gray-800 rounded-lg shadow p-4">
+          <h2 className="text-lg font-semibold mb-2 dark:text-white">Events</h2>
+          <button className="mb-2 bg-gray-700 text-white px-3 py-1 rounded hover:bg-gray-600" onClick={loadEvents}>Load</button>
+          <ul>
+            {events.map((e)=> (
+              <li key={e._id} className="flex-wrap mb-1 flex items-center gap-2 border-b border-bottom-[#00000040] py-2">
+                <span>{e.event}</span>
+                {e.createdAt && <span className="text-xs text-gray-500">{e.createdAt}</span>}
+              </li>
+            ))}
+          </ul>
         </section>
       </main>
+
+      {loading && (
+        <div className="loader-overlay" aria-label="Loading indicator">
+          <div className="loader" />
+        </div>
+      )}
     </div>
   )
 }
